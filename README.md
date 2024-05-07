@@ -19,3 +19,5 @@ docker run -d --name=postgres13 -p 5432:5432 -v postgres-volume:/var/lib/postgre
 ```bash
 dotnet tool install --global dotnet-ef
 ```
+### 配置使用数据库读取和保存
+官方文档： https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-8.0#custom-configuration-provider

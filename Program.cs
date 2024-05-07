@@ -1,8 +1,15 @@
 using Microsoft.AspNetCore.Components;
 using AntDesign.ProLayout;
 using Microsoft.EntityFrameworkCore;
+using Config;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 增加配置数据库支持
+string? config_str = builder.Configuration.GetConnectionString("ConfigContext"); 
+builder.Configuration.AddDbConfig(
+    opt => opt.UseNpgsql(config_str)
+);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
