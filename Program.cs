@@ -1,15 +1,13 @@
 using Microsoft.AspNetCore.Components;
 using AntDesign.ProLayout;
 using Microsoft.EntityFrameworkCore;
-using Config;
+using Microsoft.EntityFrameworkCore.Sqlite;
+using EntityConfiguration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 增加配置数据库支持
-string? config_str = builder.Configuration.GetConnectionString("ConfigContext"); 
-builder.Configuration.AddDbConfig(
-    opt => opt.UseNpgsql(config_str)
-);
+builder.Configuration.AddEntityConfiguration();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -20,8 +18,7 @@ builder.Services.AddScoped(sp => new HttpClient
     BaseAddress = new Uri(sp.GetService<NavigationManager>()!.BaseUri)
 });
 builder.Services.Configure<ProSettings>(builder.Configuration.GetSection("ProSettings"));
-builder.Services.AddDbContextFactory<Bloging.BlogingDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("BloggingContext")));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
