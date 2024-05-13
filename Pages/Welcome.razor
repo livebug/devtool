@@ -1,5 +1,8 @@
 ﻿@page "/"
 @inject IConfiguration _conf
+@using EntityConfiguration
+@using Microsoft.EntityFrameworkCore
+@using System.Collections.Generic
 <PageContainer Title="Welcome">
     <Card>
         <Alert
@@ -33,9 +36,10 @@
     </Card>
     <Card>
         <h4>展示变量</h4>
-        <p>@_conf["WidgetOptions:EndpointId"]</p>
+        <p>@_conf["version"]</p>
+        <Button Type="@ButtonType.Primary" OnClick="Click">update config</Button>
+
     </Card>
-    <button type="button" @onclick="Click">update config</button>
     <p style="text-align: center; margin-top: 24px;">
         Want to add more pages? Please refer to
         <a href="https://github.com/ant-design-blazor/ant-design-pro-blazor" target="_blank" rel="noopener noreferrer">
@@ -49,8 +53,12 @@
     void Click()
     {
         Console.WriteLine("update config");
+        _conf["version"] = DateTime.Now.ToLongTimeString();
 
         var configroot = (IConfigurationRoot)_conf;
+        var cps =  configroot.Providers.ToList();
+        var p = cps.First( t => t is EntityConfigurationProvider) as EntityConfigurationProvider;
         configroot.Reload();
     }
-}
+}    using AntDesign.Core.Extensions;
+    using AntDesign.Core.Extensions;

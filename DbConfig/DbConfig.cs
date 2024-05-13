@@ -1,4 +1,6 @@
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using AntDesign.Core.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 
@@ -49,6 +51,18 @@ public sealed class EntityConfigurationProvider
             : CreateAndSaveDefaultValues(dbContext);
     }
 
+    public override void Set(string key, string? value)
+    {
+        base.Set(key, value);
+        using var dbContext = new EntityConfigurationContext(ConnectionString);
+
+        dbContext.EntityConfigurationValues.Add(
+            new EntityConfigurationValue(key, value)
+        );
+
+        dbContext.SaveChanges();
+    }
+
     static Dictionary<string, string?> CreateAndSaveDefaultValues(
         EntityConfigurationContext context)
     {
@@ -57,7 +71,8 @@ public sealed class EntityConfigurationProvider
         {
             ["WidgetOptions:EndpointId"] = "b3da3c4c-9c4e-4411-bc4d-609e2dcc5c67",
             ["WidgetOptions:DisplayLabel"] = "Widgets Incorporated, LLC.",
-            ["WidgetOptions:WidgetRoute"] = "api/widgets"
+            ["WidgetOptions:WidgetRoute"] = "api/widgets",
+            ["version"] = DateTime.Now.ToLongTimeString()
         };
 
         context.EntityConfigurationValues.AddRange(
@@ -75,7 +90,6 @@ public static class ConfigurationManagerExtensions
         this ConfigurationManager manager)
     {
         var connectionString = manager.GetConnectionString("ConfigContext");
-
         IConfigurationBuilder configBuilder = manager;
         configBuilder.Add(new EntityConfigurationSource(connectionString));
 
