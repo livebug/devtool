@@ -1,8 +1,4 @@
-﻿@page "/"
-@inject IConfiguration _conf
-@using EntityConfiguration
-@using Microsoft.EntityFrameworkCore
-@using System.Collections.Generic
+﻿@page "/" 
 <PageContainer Title="Welcome">
     <Card>
         <Alert
@@ -33,13 +29,7 @@
             </a>
         </Text>
         <pre class="pre"><code><Text Copyable> dotnet new antdesign --host=server --full</Text></code></pre>
-    </Card>
-    <Card>
-        <h4>展示变量</h4>
-        <p>@_conf["version"]</p>
-        <Button Type="@ButtonType.Primary" OnClick="Click">update config</Button>
-
-    </Card>
+    </Card> 
     <p style="text-align: center; margin-top: 24px;">
         Want to add more pages? Please refer to
         <a href="https://github.com/ant-design-blazor/ant-design-pro-blazor" target="_blank" rel="noopener noreferrer">
@@ -49,10 +39,5 @@
     </p>
 </PageContainer>
 
-@code {
-    void Click()
-    {
-        Console.WriteLine("update config");
-        _conf["version"] = DateTime.Now.ToLongTimeString();
-    }
+@code { 
 }   
