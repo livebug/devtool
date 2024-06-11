@@ -54,11 +54,5 @@
     {
         Console.WriteLine("update config");
         _conf["version"] = DateTime.Now.ToLongTimeString();
-
-        var configroot = (IConfigurationRoot)_conf;
-        var cps =  configroot.Providers.ToList();
-        var p = cps.First( t => t is EntityConfigurationProvider) as EntityConfigurationProvider;
-        configroot.Reload();
     }
-}    using AntDesign.Core.Extensions;
-    using AntDesign.Core.Extensions;
+}   

@@ -23,18 +23,17 @@ public sealed class EntityConfigurationContext(string? connectionString) : DbCon
     }
 }
 
-public sealed class EntityConfigurationSource(
-    string? connectionString) : IConfigurationSource
-{ 
+public sealed class EntityConfigurationSource(string? connectionString) : IConfigurationSource
+{
     public IConfigurationProvider Build(IConfigurationBuilder builder) => new EntityConfigurationProvider(connectionString);
 }
 
-public sealed class EntityConfigurationProvider 
+public sealed class EntityConfigurationProvider
     : ConfigurationProvider
-{ 
+{
     public string? ConnectionString { get; set; }
 
-    public EntityConfigurationProvider( string? connectionString)
+    public EntityConfigurationProvider(string? connectionString)
     {
         ConnectionString = connectionString;
     }
@@ -56,7 +55,7 @@ public sealed class EntityConfigurationProvider
         base.Set(key, value);
         using var dbContext = new EntityConfigurationContext(ConnectionString);
 
-        dbContext.EntityConfigurationValues.Add(
+        dbContext.EntityConfigurationValues.Update(
             new EntityConfigurationValue(key, value)
         );
 
