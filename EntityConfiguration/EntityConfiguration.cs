@@ -23,8 +23,13 @@ public sealed class EntityConfigurationContext(string? connectionString) : DbCon
     }
 }
 
-public sealed class EntityConfigurationSource(string? connectionString) : IConfigurationSource
+public sealed class EntityConfigurationSource : IConfigurationSource
 {
+    private readonly string? connectionString;
+    public EntityConfigurationSource(string? connectionString)
+    {
+        this.connectionString = connectionString;
+    }
     public IConfigurationProvider Build(IConfigurationBuilder builder) => new EntityConfigurationProvider(connectionString);
 }
 
@@ -32,10 +37,19 @@ public sealed class EntityConfigurationProvider
     : ConfigurationProvider
 {
     public string? ConnectionString { get; set; }
+    private readonly ILogger<EntityConfigurationProvider> _logger;
+
 
     public EntityConfigurationProvider(string? connectionString)
     {
         ConnectionString = connectionString;
+        // 构建配置
+        var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+        {
+            loggingBuilder.AddConsole();
+        });
+        this._logger = loggerFactory.CreateLogger<EntityConfigurationProvider>();
+
     }
     public override void Load()
     {
@@ -54,12 +68,28 @@ public sealed class EntityConfigurationProvider
     {
         base.Set(key, value);
         using var dbContext = new EntityConfigurationContext(ConnectionString);
+        var item = new EntityConfigurationValue(key, value);
+        try
+        {
+            _logger.LogDebug($"add or update item => key:{key} value:{value} ");
+            if (dbContext.EntityConfigurationValues.Any(e => e.Key == key))
+            {
+                _logger.LogDebug("已存在，需要更新");
+                dbContext.EntityConfigurationValues.Update(item);
+            }
+            else
+            {
+                _logger.LogDebug("不存在，需要新增");
+                dbContext.EntityConfigurationValues.Add(item);
+            }
+            dbContext.SaveChanges();
+        }
+        catch (System.Exception e)
+        {
+            _logger.LogError($"error type: {e.GetType()}  msg: {e.Message}");
+            return;
+        }
 
-        dbContext.EntityConfigurationValues.Update(
-            new EntityConfigurationValue(key, value)
-        );
-
-        dbContext.SaveChanges();
     }
 
     static Dictionary<string, string?> CreateAndSaveDefaultValues(
@@ -85,13 +115,10 @@ public sealed class EntityConfigurationProvider
 
 public static class ConfigurationManagerExtensions
 {
-    public static ConfigurationManager AddEntityConfiguration(
-        this ConfigurationManager manager)
+    public static ConfigurationManager AddEntityConfiguration(this ConfigurationManager manager)
     {
         var connectionString = manager.GetConnectionString("ConfigContext");
-        IConfigurationBuilder configBuilder = manager;
-        configBuilder.Add(new EntityConfigurationSource(connectionString));
-
+        (manager as IConfigurationBuilder).Add(new EntityConfigurationSource(connectionString));
         return manager;
     }
 }
